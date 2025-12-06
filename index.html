@@ -1082,7 +1082,7 @@ function goToStep4(){
     const overallTotalDiv = document.getElementById("overall-total");
     const step5BtnContainer = step4Section.querySelector('.step-5-btn-container');
 
-    let currentActivities = null;
+        let currentActivities = null;
     let activityTitle = "";
    
     if(selectedDestinationName.includes("Βιέννη")){
@@ -1097,6 +1097,9 @@ function goToStep4(){
     } else if (selectedDestinationName.includes("Βουδαπέστη")){
         currentActivities = activitiesBudapest;
         activityTitle = "Οικογενειακές Δραστηριότητες στη Βουδαπέστη";
+    } else if (selectedDestinationName.includes("Μαδρίτη")){
+        currentActivities = activitiesMadrid;
+        activityTitle = "Οικογενειακές Δραστηριότητες στη Μαδρίτη";
    
     }
    
@@ -1122,7 +1125,6 @@ function goToStep4(){
    
     saveToLocalStorage();
 }
-
 function goToStep5(){
     // Προφόρτωση Leaflet για γρηγορότερο χάρτη
     preloadLeaflet();
@@ -1273,6 +1275,37 @@ function goToStep5(){
         summaryDiv.style.border = '2px dashed #ff9933';
         summaryDiv.style.background = '#fff5e6';
    
+    } else if (selectedDestinationName.includes("Μαδρίτη")) {
+        if (selectedActivities.length > 0) {
+                        const dailyProgram = createMadridSmartProgram(selectedActivities, selectedDaysStay || 1);
+            const distancesInfo = calculateDistances(selectedActivities);
+           
+            summaryDiv.innerHTML = `
+                <h3>✅ Το προσωπικό σας πρόγραμμα για ${daysText} στη Μαδρίτη!</h3>
+                <div style="background: #e8f0f8; padding: 15px; border-radius: 10px; border: 2px solid #ff6b35; margin: 15px 0;">
+                    <strong>📅 Πρόγραμμα Διακοπών:</strong>
+                    ${dailyProgram}
+                </div>
+                ${distancesInfo}
+                <div style="background: #fff3cd; padding: 15px; border-radius: 10px; border: 1px solid #ffeaa7; margin: 15px 0;">
+                    <strong>Οι επιλεγμένες σας δραστηριότητες (${selectedActivities.length}):</strong>
+                    <ul>
+                        ${selectedActivities.map(act => `<li>${act.name}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        } else {
+            summaryDiv.innerHTML = `
+                <h3>🌞 Μαδρίτη - Πρόγραμμα ${daysText}</h3>
+                <p>Δεν έχετε επιλέξει δραστηριότητες ακόμα. Επιστρέψτε στο Βήμα 4 και επιλέξτε δραστηριότητες!</p>
+                <button onclick="activateStep('step-activities')" style="padding: 10px 20px; background: #ff6b35; color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px;">
+                    Επιστροφή στο Βήμα 4
+                </button>
+            `;
+        }
+        summaryDiv.style.border = '2px dashed #ff6b35';
+        summaryDiv.style.background = '#fff5e6';
+   
     } else {
         // Για όλους τους άλλους προορισμούς
         summaryDiv.innerHTML = `
@@ -1372,9 +1405,9 @@ function calculateAllCosts(activityList = null) {
                       selectedDestinationName.includes("Βερολίνο") ? activitiesBerlin :
                       selectedDestinationName.includes("Λισαβόνα") ? activitiesLisbon :
                       selectedDestinationName.includes("Βουδαπέστη") ? activitiesBudapest :
+                      selectedDestinationName.includes("Μαδρίτη") ? activitiesMadrid :
                       activities;
-    }
-   
+    }   
     // Ενημέρωση των familyMembers πριν τον υπολογισμό
     updateFamilyMembers();
    
@@ -1547,8 +1580,10 @@ function getSelectedActivities() {
         currentActivities = activitiesBerlin;
     } else if (selectedDestinationName.includes("Λισαβόνα")) {
         currentActivities = activitiesLisbon;
- } else if (selectedDestinationName.includes("Βουδαπέστη")) {
+    } else if (selectedDestinationName.includes("Βουδαπέστη")) {
         currentActivities = activitiesBudapest;
+    } else if (selectedDestinationName.includes("Μαδρίτη")) {
+        currentActivities = activitiesMadrid;
     } else {
         return [];
     }
@@ -1558,7 +1593,6 @@ function getSelectedActivities() {
     console.log("Επιλεγμένες δραστηριότητες:", selected.length, selected);
     return selected;
 }
-
 function createDailyProgram(activities, days) {
     let programHTML = '';
    
@@ -2405,6 +2439,290 @@ document.addEventListener('input', function(e) {
         setTimeout(saveToLocalStorage, 100);
     }
 });
+// ** ΔΡΑΣΤΗΡΙΟΤΗΤΕΣ ΓΙΑ ΜΑΔΡΙΤΗ **
+const activitiesMadrid = [
+    // ============== ΠΑΡΚΑ (ΔΩΡΕΑΝ) ==============
+    {
+        name: "Parque del Retiro",
+        desc: "Το εμβληματικό πάρκο με τη λίμνη για βαρκάκια, το Γυάλινο Παλάτι και τους καταπράσινους χώρους.",
+        prices: {"0-2":0,"3-5":0,"6-14":0,"15-19":0,"18+":0},
+        selected: false,
+        lat: 40.4150,
+        lng: -3.6834,
+        restaurant: "<a href='https://maps.google.com/?q=Cafe+del+Retiro+Madrid' target='_blank'>Café del Retiro</a> - μέσα στο πάρκο",
+        freeActivity: true
+    },
+    {
+        name: "Casa de Campo",
+        desc: "Το τεράστιο αστικό πάρκο όπου βρίσκονται το Zoo, το Λούνα Παρκ και το Teleférico. Ιδανικό για ποδηλασία, πικνίκ και πεζοπορία.",
+        prices: {"0-2":0,"3-5":0,"6-14":0,"15-19":0,"18+":0},
+        selected: false,
+        lat: 40.4242,
+        lng: -3.7587,
+        restaurant: "<a href='https://maps.google.com/?q=Restaurante+Casa+de+Campo+Madrid' target='_blank'>Restaurante Casa de Campo</a>",
+        freeActivity: true
+    },
+    {
+        name: "Madrid Río",
+        desc: "Η λεωφόρος κατά μήκος του ποταμού Manzanares, με ποδηλατόδρομους, παιδικές χαρές και χώρους αναψυχής.",
+        prices: {"0-2":0,"3-5":0,"6-14":0,"15-19":0,"18+":0},
+        selected: false,
+        lat: 40.3980,
+        lng: -3.7200,
+        restaurant: "<a href='https://maps.google.com/?q=Matadero+Madrid' target='_blank'>Matadero Madrid</a> - πολιτιστικό κέντρο με εστιατόρια",
+        freeActivity: true
+    },
+    {
+        name: "Templo de Debod",
+        desc: "Αρχαίος αιγυπτιακός ναός που μεταφέρθηκε στη Μαδρίτη. Υπέροχος χώρος για το ηλιοβασίλεμα.",
+        prices: {"0-2":0,"3-5":0,"6-14":0,"15-19":0,"18+":0},
+        selected: false,
+        lat: 40.4238,
+        lng: -3.7185,
+        restaurant: "<a href='https://maps.google.com/?q=Restaurante+con+vistas+Templo+de+Debod' target='_blank'>Εστιατόριο με θέα στον ναό</a>",
+        freeActivity: true
+    },
+    
+    // ============== ΜΟΥΣΕΙΑ ==============
+    {
+        name: "MUNCYT (Μουσείο Επιστήμης & Τεχνολογίας)",
+        desc: "Πολύ διαδραστικό και εκπαιδευτικό, ιδανικό για οικογένειες με παιδιά.",
+        prices: {"0-2":0,"3-5":0,"6-14":0,"15-19":0,"18+":0},
+        selected: false,
+        lat: 40.4531,
+        lng: -3.6883,
+        restaurant: "<a href='https://maps.google.com/?q=Cafe+MUNCYT+Madrid' target='_blank'>Café MUNCYT</a>",
+        freeActivity: true
+    },
+    {
+        name: "Museo Naval (Ναυτικό Μουσείο)",
+        desc: "Σπουδαία συλλογή με ναυτικά χάρτη, μακέτες πλοίων και ιστορικά αντικείμενα. Κοντά στο κέντρο.",
+        prices: {"0-2":0,"3-5":0,"6-14":0,"15-19":0,"18+":0},
+        selected: false,
+        lat: 40.4176,
+        lng: -3.6920,
+        restaurant: "<a href='https://maps.google.com/?q=Cafe+Gijon+Madrid' target='_blank'>Café Gijón</a> - ιστορικό καφέ",
+        freeActivity: true
+    },
+    {
+        name: "Planetario de Madrid (Πλανητάριο)",
+        desc: "Πολύ οικονομικό για προβολές σχετικές με το διάστημα.",
+        prices: {"0-2":0,"3-5":1.65,"6-14":1.65,"15-19":3.60,"18+":3.60},
+        selected: false,
+        lat: 40.4567,
+        lng: -3.6894,
+        restaurant: "<a href='https://maps.google.com/?q=Restaurante+Tierno+Galvan+Madrid' target='_blank'>Restaurante Tierno Galván</a> - κοντά στο πάρκο",
+        website: "https://planetmad.es/"
+    },
+    {
+        name: "Museo Nacional de Ciencias Naturales",
+        desc: "Περιλαμβάνει εκθέσεις με δεινόσαυρους και διάφορα οικοσυστήματα.",
+        prices: {"0-2":0,"3-5":3.50,"6-14":3.50,"15-19":7,"18+":7},
+        selected: false,
+        lat: 40.4405,
+        lng: -3.6902,
+        restaurant: "<a href='https://maps.google.com/?q=Cafe+Museo+Ciencias+Naturales' target='_blank'>Café του Μουσείου</a>",
+        website: "https://www.mncn.csic.es/"
+    },
+    {
+        name: "Museo de Cera (Μουσείο κέρινων ομοιομάτων)",
+        desc: "Με κέρινα αγάλματα διάσημων προσωπικοτήτων.",
+        prices: {"0-2":0,"3-5":13,"6-14":13,"15-19":19,"18+":19},
+        selected: false,
+        lat: 40.4201,
+        lng: -3.6964,
+        restaurant: "<a href='https://maps.google.com/?q=Cafe+Museo+Cera+Madrid' target='_blank'>Café Museo de Cera</a>",
+        website: "https://museoceramadrid.com/"
+    },
+    
+    // ============== ΖΩΟΛΟΓΙΚΟΙ ΚΗΠΟΙ & ΕΝΥΔΡΕΙΑ ==============
+    {
+        name: "Zoo Aquarium de Madrid",
+        desc: "Ζωολογικός κήπος με ενυδρείο. Combo με το Faunia διαθέσιμο.",
+        prices: {"0-2":0,"3-5":16.90,"6-14":19.80,"15-19":19.80,"18+":19.80},
+        selected: false,
+        lat: 40.4062,
+        lng: -3.7584,
+        restaurant: "<a href='https://maps.google.com/?q=Restaurante+Zoo+Madrid' target='_blank'>Restaurante Zoo Madrid</a>",
+        website: "https://www.zoomadrid.com/",
+        note: "Combo με Faunia: 39.90€ (online)"
+    },
+    {
+        name: "Faunia",
+        desc: "Πάρκο με θέμα τα οικοσυστήματα και ζώα από όλο τον κόσμο.",
+        prices: {"0-2":0,"3-5":16.90,"6-14":16.90,"15-19":16.90,"18+":16.90},
+        selected: false,
+        lat: 40.3742,
+        lng: -3.6026,
+        restaurant: "<a href='https://maps.google.com/?q=Restaurante+Faunia+Madrid' target='_blank'>Restaurante Faunia</a>",
+        website: "https://www.faunia.es/",
+        note: "Combo με Zoo: 39.90€ (online)"
+    },
+    {
+        name: "Atlantis Aquarium (Ενυδρείο)",
+        desc: "Ενυδρείο στο εμπορικό X-Madrid.",
+        prices: {"0-2":0,"3-5":9.90,"6-14":9.90,"15-19":9.90,"18+":9.90},
+        selected: false,
+        lat: 40.4156,
+        lng: -3.7032,
+        restaurant: "<a href='https://maps.google.com/?q=X-Madrid+food+court' target='_blank'>Food Court X-Madrid</a>",
+        website: "https://atlantisaquarium-madrid.es/"
+    },
+    
+    // ============== ΘΕΜΑΤΙΚΑ ΠΑΡΚΑ & ΔΡΑΣΤΗΡΙΟΤΗΤΕΣ ==============
+    {
+        name: "Parque de Atracciones (Λούνα Παρκ)",
+        desc: "Θεματικό πάρκο με βόλτες και παιχνίδια. Χρησιμοποιεί δυναμική τιμολόγηση (η τιμή αλλάζει ανά ημέρα).",
+        prices: {"0-2":0,"3-5":24,"6-14":24,"15-19":24,"18+":42},
+        selected: false,
+        lat: 40.4240,
+        lng: -3.7572,
+        restaurant: "<a href='https://maps.google.com/?q=Restaurante+Parque+Atracciones+Madrid' target='_blank'>Restaurante Parque Atracciones</a>",
+        website: "https://www.parquedeatracciones.es/",
+        note: "⚠️ Δυναμική τιμολόγηση - ελέγξτε online για ακριβή τιμή"
+    },
+    {
+        name: "Parque Warner Madrid",
+        desc: "Θεματικό πάρκο με χαρακτήρες Warner Bros. Βρίσκεται εκτός πόλης (~25χλμ).",
+        prices: {"0-2":0,"3-5":32.90,"6-14":32.90,"15-19":32.90,"18+":32.90},
+        selected: false,
+        lat: 40.2311,
+        lng: -3.5931,
+        restaurant: "<a href='https://maps.google.com/?q=Restaurante+Warner+Madrid' target='_blank'>Restaurante Warner Park</a>",
+        website: "https://www.parquewarner.com/",
+        note: "⚠️ ΜΟΝΟ online αγορά - στο ταμείο πιο ακριβά"
+    },
+    {
+        name: "Safari Madrid (στο Αλμπένθε)",
+        desc: "Σαφάρι με ζώα. Απαιτεί αυτοκίνητο (50χλμ από Μαδρίτη).",
+        prices: {"0-2":0,"3-5":17.90,"6-14":17.90,"15-19":22.90,"18+":22.90},
+        selected: false,
+        lat: 40.1020,
+        lng: -3.2450,
+        restaurant: "<a href='https://maps.google.com/?q=Restaurante+Safari+Madrid' target='_blank'>Restaurante Safari Madrid</a>",
+        website: "https://www.safarimadrid.com/",
+        note: "⚠️ ΥΠΟΧΡΕΩΤΙΚΑ online αγορά εκ των προτέρων"
+    },
+    
+    // ============== ΑΛΛΕΣ ΔΡΑΣΤΗΡΙΟΤΗΤΕΣ ==============
+    {
+        name: "Santiago Bernabéu Tour (Tour Γηπέδου Ρεάλ Μαδρίτης)",
+        desc: "Επίσκεψη στο διάσημο γήπεδο ποδοσφαίρου. Χρησιμοποιεί δυναμική τιμολόγηση.",
+        prices: {"0-2":0,"3-5":42,"6-14":42,"15-19":45,"18+":45},
+        selected: false,
+        lat: 40.4530,
+        lng: -3.6883,
+        restaurant: "<a href='https://maps.google.com/?q=Restaurante+Bernabeu+Madrid' target='_blank'>Restaurante Bernabéu</a>",
+        website: "https://www.realmadrid.com/",
+        note: "⚠️ Δυναμική τιμολόγηση - οι τιμές διαφέρουν ανά ημερομηνία"
+    },
+    {
+        name: "Micropolix (Παιδική Πόλη Επαγγελμάτων)",
+        desc: "Εκπαιδευτική 'πόλη' όπου τα παιδιά παίζουν διάφορα επαγγέλματα.",
+        prices: {"0-2":0,"3-5":15,"6-14":16,"15-19":16,"18+":16},
+        selected: false,
+        lat: 40.4735,
+        lng: -3.6128,
+        restaurant: "<a href='https://maps.google.com/?q=Restaurante+Micropolix+Madrid' target='_blank'>Restaurante Micropolix</a>",
+        website: "https://micropolix.com/"
+    },
+    {
+        name: "Sweet Space (Παιδικός Χώρος με Γλυκά Θέματα)",
+        desc: "Χώρος με θέμα τα γλυκά και διαδραστικές εμπειρίες.",
+        prices: {"0-2":10,"3-5":10,"6-14":12,"15-19":15,"18+":15},
+        selected: false,
+        lat: 40.4255,
+        lng: -3.7035,
+        restaurant: "<a href='https://maps.google.com/?q=Sweet+Space+Cafe+Madrid' target='_blank'>Sweet Space Cafe</a>",
+        website: "https://sweetspace.es/",
+        note: "👨‍👩‍👧‍👦 Οικογενειακό πακέτο (2+2): 40€"
+    },
+    {
+        name: "IKONO (Διαδραστική & Φωτογραφική Εμπειρία)",
+        desc: "Διαδραστικό μουσείο με φωτογραφικές εμπειρίες.",
+        prices: {"0-2":0,"3-5":13.90,"6-14":13.90,"15-19":17.90,"18+":17.90},
+        selected: false,
+        lat: 40.4180,
+        lng: -3.7020,
+        restaurant: "<a href='https://maps.google.com/?q=Cafe+IKONO+Madrid' target='_blank'>Café IKONO</a>",
+        website: "https://ikonomadrid.com/",
+        note: "👨‍👩‍👧‍👦 Οικογενειακό πακέτο: 3 άτομα x 13.90€"
+    },
+    {
+        name: "Urban Planet (Parkour Park)",
+        desc: "Πάρκο για parkour και ακραία αθλήματα.",
+        prices: {"0-2":12,"3-5":12,"6-14":12,"15-19":12,"18+":12},
+        selected: false,
+        lat: 40.3800,
+        lng: -3.6250,
+        restaurant: "<a href='https://maps.google.com/?q=Cafe+Urban+Planet+Madrid' target='_blank'>Café Urban Planet</a>",
+        website: "https://urbanplanetmadrid.com/",
+        note: "💰 ~12€ για 60 λεπτά"
+    },
+    {
+        name: "Teleférico de Madrid",
+        desc: "Τελεφερίκ με θέα την πόλη. ⚠️ ΠΡΟΣΩΡΙΝΑ ΚΛΕΙΣΤΟ",
+        prices: {"0-2":0,"3-5":5,"6-14":5,"15-19":6,"18+":6},
+        selected: false,
+        lat: 40.4245,
+        lng: -3.7210,
+        restaurant: "<a href='https://maps.google.com/?q=Casa+Mingo+Madrid' target='_blank'>Casa Mingo</a> - παραδοσιακό",
+        website: "https://www.teleferico.com/",
+        note: "⚠️ ΠΡΟΣΩΡΙΝΑ ΚΛΕΙΣΤΟ - Ελέγξτε πριν από επίσκεψη",
+        currentlyClosed: true
+    }
+];
+function createMadridSmartProgram(activities, days) {
+    const activitiesWithCoords = activities.filter(act => act.lat && act.lng);
+   
+    if (activitiesWithCoords.length === 0) {
+        return "<p>🚧 Για έξυπνο γεωγραφικό χωρισμό, χρειαζόμαστε συντεταγμένες στις δραστηριότητες</p>" +
+               createDailyProgram(activities, days);
+    }
+   
+    const clusters = createSmartClusters(activitiesWithCoords, days);
+   
+    let programHTML = '<p>🗺️ <strong>Έξυπνο Πρόγραμμα για Μαδρίτη:</strong></p>';
+   
+    clusters.forEach((cluster, index) => {
+        const morningActivities = cluster.slice(0, Math.ceil(cluster.length / 2));
+        const afternoonActivities = cluster.slice(Math.ceil(cluster.length / 2));
+       
+        programHTML += `
+            <div style="margin: 20px 0; padding: 15px; background: white; border-radius: 12px; border-left: 6px solid #ff6b35; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                <h4 style="margin: 0 0 12px 0; color: #ff6b35;">📍 Ημέρα ${index + 1} - Μαδρίτη</h4>
+               
+                ${morningActivities.length > 0 ? `
+                <div style="margin-bottom: 12px;">
+                    <h5 style="margin: 0 0 6px 0; color: #3eb489;">🌅 Πρωινό (9:00 - 13:00)</h5>
+                    <ul style="margin: 0; padding-left: 20px;">
+                        ${morningActivities.map(act => `<li>${act.name}</li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+               
+                ${afternoonActivities.length > 0 ? `
+                <div style="margin-bottom: 8px;">
+                    <h5 style="margin: 0 0 6px 0; color: #4c7af0;">🌇 Απογευματινό (14:00 - 18:00)</h5>
+                    <ul style="margin: 0; padding-left: 20px;">
+                        ${afternoonActivities.map(act => `<li>${act.name}</li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+               
+                <div style="background: #fff5e6; padding: 8px; border-radius: 6px; margin-top: 8px;">
+                    <p style="margin: 0; font-size: 0.85em; color: #666;">
+                        ✅ <strong>Βελτιστοποιημένη Διαδρομή</strong><br>
+                        🚇 <strong>Εύκολες Μετακινήσεις με Μετρό</strong><br>
+                        ⏱️ <strong>Ισορροπημένος Χρόνος</strong>
+                    </p>
+                </div>
+            </div>
+        `;
+    });
+   
+    return programHTML;
+}
 </script>
 </body>
 </html>
