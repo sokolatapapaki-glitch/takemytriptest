@@ -3,6 +3,7 @@
   "country": "Γαλλία",
   "description": "Η πόλη του φωτός",
   "currency": "€",
+  "coordinates": { "lat": 48.8566, "lng": 2.3522 },
   "activities": [
     {
       "name": "Disneyland Paris",
