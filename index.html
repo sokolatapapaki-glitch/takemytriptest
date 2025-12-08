@@ -1406,6 +1406,9 @@ async function goToStep4() {
                 currentActivities = extraCityData.activities;
                 activityTitle = `Οικογενειακές Δραστηριότητες στην ${selectedDestinationName}`;
                 console.log(`✅ Βρέθηκαν ${currentActivities.length} δραστηριότητες από εξωτερικό αρχείο`);
+                 // 👇 ΑΥΤΗ Η ΓΡΑΜΜΗ ΠΡΟΣΘΕΤΕΙ
+    window.loadedExtraCityActivities = extraCityData.activities;
+    console.log("💾 Αποθηκεύτηκαν στη window.loadedExtraCityActivities");
             }
         } catch (error) {
             console.error("❌ Σφάλμα φόρτωσης εξωτερικής πόλης:", error);
