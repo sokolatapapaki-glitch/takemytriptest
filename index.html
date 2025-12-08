@@ -1657,8 +1657,7 @@ function goToStep5(){
     // 👇👇👇👇👇 ΝΕΟΣ ΚΩΔΙΚΑΣ ΓΙΑ ΝΕΕΣ ΠΟΛΕΙΣ 👇👇👇👇👇
     // ΈΛΕΓΧΟΣ ΓΙΑ ΝΕΕΣ ΠΟΛΕΙΣ (Παρίσι, κλπ)
             // Αν δεν είναι καμία από τις παλιές, τότε είναι νέα πόλη
-        const selectedActivities = getSelectedActivities();
-        const daysText = selectedDaysStay > 0 ? `${selectedDaysStay} μέρες` : "μη ορισμένες μέρες";
+                const daysText = selectedDaysStay > 0 ? `${selectedDaysStay} μέρες` : "μη ορισμένες μέρες";
         
         if (selectedActivities.length > 0) {
             const dailyProgram = createDailyProgram(selectedActivities, selectedDaysStay || 1);
