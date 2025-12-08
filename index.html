@@ -1928,8 +1928,9 @@ function selectQuickCity() {
 function getSelectedActivities() {
     console.log("🔍 Αναζήτηση επιλεγμένων για:", selectedDestinationName);
     
-    // 1. Πρώτα τσεκάρουμε αν υπάρχουν δραστηριότητες από εξωτερικό JSON (ΜΟΝΟ για Παρίσι)
-    if (selectedDestinationName.includes("Παρίσι") && window.loadedExtraCityActivities && window.loadedExtraCityActivities.length > 0) {
+        // 1. ΓΙΑ ΠΑΡΙΣΙ & ΠΡΑΓΑ (από JSON)
+    if ((selectedDestinationName.includes("Παρίσι") || selectedDestinationName.includes("Πράγα")) 
+        && window.loadedExtraCityActivities && window.loadedExtraCityActivities.length > 0) {
         console.log("🔍 Έλεγχος για Παρίσι...");
         const selected = window.loadedExtraCityActivities.filter(act => act.selected === true);
         if (selected.length > 0) {
