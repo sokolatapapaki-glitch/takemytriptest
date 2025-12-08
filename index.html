@@ -3463,39 +3463,44 @@ function applyBestCombo() {
 function closeComboModal() {
     console.log("🔒 Κλείσιμο modal combo...");
    
-    // Βρες το modal
-    const modal = document.querySelector('div[style*="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8)"]');
+    // Εναλλακτικός τρόπος 1 - Από το ID (πιο αξιόπιστο)
+    const comboModal = document.getElementById('combo-modal-main');
+    if (comboModal) {
+        console.log("✅ Βρέθηκε modal από ID - αφαίρεση...");
+        comboModal.remove();
+    }
    
-    // Βρες το κουμπί κλεισίματος
-    const closeBtn = document.querySelector('button[style*="position: absolute; top: 20px; right: 20px; background: #f44336"]');
-   
-    // Αφαίρεσέ τα
-    if (modal) {
-        console.log("✅ Βρέθηκε modal - αφαίρεση...");
+    // Εναλλακτικός τρόπος 2 - Από το style
+    const modal = document.querySelector('div[style*="position: fixed"][style*="top: 0"][style*="left: 0"]');
+    if (modal && modal.style.background.includes('rgba(0,0,0,0.8)')) {
+        console.log("✅ Βρέθηκε modal από style - αφαίρεση...");
         modal.remove();
     }
    
+    // Εναλλακτικός τρόπος 3 - Βρες το κουμπί κλεισίματος
+    const closeBtn = document.querySelector('button[onclick*="closeComboModal"]');
     if (closeBtn) {
         console.log("✅ Βρέθηκε κουμπί κλεισίματος - αφαίρεση...");
         closeBtn.remove();
     }
    
-    // Εναλλακτικός τρόπος
-    const allModals = document.querySelectorAll('div');
-    allModals.forEach(div => {
-        if (div.style.cssText && div.style.cssText.includes('position: fixed') && div.style.cssText.includes('rgba(0,0,0,0.8)')) {
+    // Επιπλέον: Κλείσιμο όλων των modals
+    document.querySelectorAll('div').forEach(div => {
+        const style = div.style.cssText || '';
+        if (style.includes('position: fixed') && style.includes('top: 0') && style.includes('left: 0')) {
             div.remove();
         }
     });
    
-    // Εναλλακτικός τρόπος 2
-    const comboModal = document.getElementById('combo-modal-main');
-    if (comboModal) comboModal.remove();
-   
     console.log("✅ Modal κλείστηκε!");
 }
 
-// Επίσης, διορθώνουμε και τη συνάρτηση applyBestCombo
+function applyBestCombo() {
+    alert("ℹ️ Η λειτουργία αυτόματης εφαρμογής του combo βρίσκεται υπό ανάπτυξη.\n\n💡 Σας συνιστούμε να αγοράσετε το combo online για την καλύτερη τιμή!");
+   
+    // Κλείσιμο του modal
+    closeComboModal();
+}
 function applyBestCombo() {
     alert("ℹ️ Η λειτουργία αυτόματης εφαρμογής του combo βρίσκεται υπό ανάπτυξη.\n\n💡 Σας συνιστούμε να αγοράσετε το combo online για την καλύτερη τιμή!");
    
