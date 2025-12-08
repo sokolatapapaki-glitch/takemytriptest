@@ -1654,6 +1654,44 @@ function goToStep5(){
         summaryDiv.style.border = 'none';
         summaryDiv.style.background = 'transparent';
     }
+    // 👇👇👇👇👇 ΝΕΟΣ ΚΩΔΙΚΑΣ ΓΙΑ ΝΕΕΣ ΠΟΛΕΙΣ 👇👇👇👇👇
+    // ΈΛΕΓΧΟΣ ΓΙΑ ΝΕΕΣ ΠΟΛΕΙΣ (Παρίσι, κλπ)
+            // Αν δεν είναι καμία από τις παλιές, τότε είναι νέα πόλη
+        const selectedActivities = getSelectedActivities();
+        const daysText = selectedDaysStay > 0 ? `${selectedDaysStay} μέρες` : "μη ορισμένες μέρες";
+        
+        if (selectedActivities.length > 0) {
+            const dailyProgram = createDailyProgram(selectedActivities, selectedDaysStay || 1);
+            const distancesInfo = calculateDistances(selectedActivities);
+            
+            summaryDiv.innerHTML = `
+                <h3>✅ Το προσωπικό σας πρόγραμμα για ${daysText} στην ${selectedDestinationName}!</h3>
+                <div style="background: #e8f5e8; padding: 15px; border-radius: 10px; border: 2px solid #3eb489; margin: 15px 0;">
+                    <strong>📅 Πρόγραμμα Διακοπών:</strong>
+                    ${dailyProgram}
+                </div>
+                ${distancesInfo}
+                <div style="background: #fff3cd; padding: 15px; border-radius: 10px; border: 1px solid #ffeaa7; margin: 15px 0;">
+                    <strong>Οι επιλεγμένες σας δραστηριότητες (${selectedActivities.length}):</strong>
+                    <ul>
+                        ${selectedActivities.map(act => `<li>${act.name}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            summaryDiv.style.border = '2px dashed #3eb489';
+            summaryDiv.style.background = '#e0fff0';
+        } else {
+            summaryDiv.innerHTML = `
+                <h3>🏙️ ${selectedDestinationName} - Πρόγραμμα ${daysText}</h3>
+                <p>Δεν έχετε επιλέξει δραστηριότητες ακόμα. Επιστρέψτε στο Βήμα 4 και επιλέξτε δραστηριότητες!</p>
+                <button onclick="activateStep('step-activities')" style="padding: 10px 20px; background: #3eb489; color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px;">
+                    Επιστροφή στο Βήμα 4
+                </button>
+            `;
+            summaryDiv.style.border = '2px dashed #3eb489';
+            summaryDiv.style.background = '#e0fff0';
+        }
+    }
 }
 function activateStep(targetId) {
     const steps = document.querySelectorAll('.step');
