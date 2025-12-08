@@ -1936,6 +1936,17 @@ function selectQuickCity() {
 }
 
 function getSelectedActivities() {
+    // 1. Πρώτα τσεκάρουμε αν υπάρχουν δραστηριότητες από εξωτερικό JSON
+    if (window.loadedExtraCityActivities && window.loadedExtraCityActivities.length > 0) {
+        // Επιστρέφουμε ΜΟΝΟ τις επιλεγμένες από τις εξωτερικές
+        const selected = window.loadedExtraCityActivities.filter(act => act.selected === true);
+        if (selected.length > 0) {
+            console.log("✅ Βρέθηκαν επιλεγμένες από εξωτερικό JSON:", selected.length);
+            return selected;
+        }
+    }
+    
+    // 2. Αν όχι, ψάχνουμε στις παλιές μεταβλητές
     let currentActivities = null;
    
     if (selectedDestinationName.includes("Βιέννη")) {
@@ -1944,18 +1955,18 @@ function getSelectedActivities() {
         currentActivities = activitiesBerlin;
     } else if (selectedDestinationName.includes("Λισαβόνα")) {
         currentActivities = activitiesLisbon;
- } else if (selectedDestinationName.includes("Βουδαπέστη")) {
+    } else if (selectedDestinationName.includes("Βουδαπέστη")) {
         currentActivities = activitiesBudapest;
-} else if (selectedDestinationName.includes("Μαδρίτη")) {
-    currentActivities = activitiesMadrid;
-
+    } else if (selectedDestinationName.includes("Μαδρίτη")) {
+        currentActivities = activitiesMadrid;
     } else {
+        console.log("⚠️ Δεν βρέθηκαν δραστηριότητες για:", selectedDestinationName);
         return [];
     }
    
     // Επιστροφή ΜΟΝΟ των δραστηριοτήτων που έχουν selected: true
     const selected = currentActivities.filter(act => act.selected === true);
-    console.log("Επιλεγμένες δραστηριότητες:", selected.length, selected);
+    console.log("✅ Επιλεγμένες δραστηριότητες:", selected.length, selected);
     return selected;
 }
 
