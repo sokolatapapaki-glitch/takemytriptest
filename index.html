@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>Οικογενειακός Οργανωτής Ταξιδιού</title>
 <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+<script src="add-cities.js" defer></script>
 <style>
 body { font-family: 'Comic Neue', Arial, Helvetica, sans-serif; background: #f0f8ff; margin: 0; display: flex; }
 .sidebar { width: 250px; background: #3eb489; color: white; padding: 20px; box-sizing: border-box; }
@@ -577,7 +578,7 @@ body {
     <div class="total-overall" id="overall-total">Συνολικό Κόστος Επιλεγμένων Δραστηριοτήτων: 0 €</div>
    
     <!-- ΝΕΑ ΔΟΜΗ ΗΛΙΚΙΩΝ (αντικαθιστά το παλιό age-inputs) -->
-    
+   
         <div class="family-members-container">
     <h2>👨‍👩‍👧‍👦 Τα Μέλη Της Οικογένειας (με ακριβείς ηλικίες)</h2>
     <div id="family-members-list">
@@ -729,25 +730,43 @@ function removeFamilyMember(button) {
 function removeFamilyMember(button) {
     button.parentElement.remove();
 }
-
 function updateFamilyMembers() {
-    const oldCount = familyMembers.length;
     familyMembers = [];
     
     document.querySelectorAll('.family-member-input').forEach(memberDiv => {
-        const name = memberDiv.querySelector('.member-name').value;
-        const age = parseInt(memberDiv.querySelector('.member-age').value) || 0;
-        if (name && age > 0) {
+        const nameInput = memberDiv.querySelector('.member-name');
+        const ageInput = memberDiv.querySelector('.member-age');
+        
+        const name = nameInput.value;
+        let age = parseInt(ageInput.value);
+        
+        // Αν δεν έχει ηλικία, βάλε προεπιλεγμένη βάσει ονόματος
+        if (isNaN(age) || age < 0) {
+            if (name.includes("Ενήλικας")) age = 40;
+            else if (name.includes("Παιδί")) age = 10;
+            else if (name.includes("Μωρό")) age = 2;
+            else age = 30;
+            
+            // Ενημέρωση του input
+            ageInput.value = age;
+        }
+        
+        if (name && age >= 0) {
             familyMembers.push({ name, age });
         }
     });
     
-    console.log('Οικογένεια ενημερώθηκε:', familyMembers.length, 'μέλη');
+    console.log('✅ Οικογένεια ενημερώθηκε:', familyMembers.length, 'μέλη');
     
-    // ΑΠΟΣΥΝΔΕΣΗ: ΔΕΝ καλείς την calculateAllCosts εδώ
-    // Αφήνουμε μόνο το saveToLocalStorage
+    // ΑΠΟΘΗΚΕΥΣΗ
     saveToLocalStorage();
+    
+    // ΕΝΗΜΕΡΩΣΗ ΚΟΣΤΟΥΣ ΜΟΝΟ αν είμαστε στο Βήμα 4
+    if (document.getElementById('step-activities').classList.contains('active')) {
+        calculateAllCosts();
+    }
 }
+
 // ** 1. ΔΕΔΟΜΕΝΑ (Τελική λίστα προορισμών)**
 let selectedDestinationName = "";
 let selectedDaysStay = 0;
@@ -795,7 +814,7 @@ const activities = [
         website: "https://www.schoenbrunn.at/en/",
         note: "Σχολικές ομάδες (6-18): €18.00"
     },
-    
+   
     // 2) State Apartments / Guided Tour Maria Theresia
     {
         name: "State Apartments / Guided Tour Maria Theresia",
@@ -806,7 +825,7 @@ const activities = [
         restaurant: "<a href='https://maps.google.com/?q=Figlmüller+Vienna' target='_blank'>Figlmüller</a> - διάσημο για schnitzel",
         website: "https://www.schoenbrunn.at/en/"
     },
-    
+   
     // 3) Sisi Pass (συνδυαστικό)
     {
         name: "Sisi Pass (3 αυτοκρατορικά αξιοθέατα)",
@@ -818,7 +837,7 @@ const activities = [
         website: "https://www.schoenbrunn.at/en/",
         note: "Εκπτωτικό combo για 3 αξιοθέατα"
     },
-    
+   
     // 4) Winter Pass (εποχικό)
     {
         name: "Winter Pass (χειμερινή περίοδος)",
@@ -830,7 +849,7 @@ const activities = [
         website: "https://www.schoenbrunn.at/en/",
         seasonal: true
     },
-    
+   
     // 5) Classic Pass & Classic Pass Plus
     {
         name: "Classic Pass (καλοκαιρινή περίοδος)",
@@ -842,7 +861,7 @@ const activities = [
         website: "https://www.schoenbrunn.at/en/",
         note: "Ιδανικό για μονοήμερη επίσκεψη"
     },
-    
+   
     {
         name: "Classic Pass Plus (πλήρες πακέτο)",
         desc: "Classic Pass + Zoo + Desert House + Palm House - σχεδόν όλο το Schönbrunn.",
@@ -853,7 +872,7 @@ const activities = [
         website: "https://zoovienna.at/",
         note: "20-30% εξοικονόμηση"
     },
-    
+   
     // 6) Children's Museum
     {
         name: "Children's Museum (Kindermuseum)",
@@ -864,7 +883,7 @@ const activities = [
         restaurant: "<a href='https://maps.google.com/?q=Cafe+Kindermuseum+Vienna' target='_blank'>Cafe Kindermuseum</a>",
         website: "https://www.schoenbrunn.at/en/"
     },
-    
+   
     // 7) Zoo Vienna Family Packages
     {
         name: "Zoo Vienna - Family Block Ticket",
@@ -876,7 +895,7 @@ const activities = [
         website: "https://zoovienna.at/",
         note: "Σύνολο: €96 για 5 άτομα"
     },
-    
+   
     {
         name: "Zoo + Palm House + Desert House Combo",
         desc: "Συνδυαστικό εισιτήριο για μία επίσκεψη σε κάθε αξιοθέατο.",
@@ -887,7 +906,7 @@ const activities = [
         website: "https://zoovienna.at/",
         note: "Ιδανικό για οικογενείες"
     },
-    
+   
     // 8) Haus des Meeres (Aquarium)
     {
         name: "Haus des Meeres (Aqua Terra Zoo)",
@@ -898,7 +917,7 @@ const activities = [
         restaurant: "<a href='https://maps.google.com/?q=Cafe+Ritter+Mariahilfer+Straße+Vienna' target='_blank'>Café Ritter</a> - Mariahilfer Straße",
         website: "https://www.haus-des-meeres.at/en"
     },
-    
+   
     // 9) Time Travel Vienna
     {
         name: "Time Travel Vienna",
@@ -909,7 +928,7 @@ const activities = [
         restaurant: "<a href='https://maps.google.com/?q=Time+Travel+Cafe+Vienna' target='_blank'>Time Travel Cafe</a>",
         website: "https://www.timetravel-vienna.at/en"
     },
-    
+   
     // 10) Sisi's Amazing Journey (VR)
     {
         name: "Sisi's Amazing Journey (VR Experience)",
@@ -921,7 +940,7 @@ const activities = [
         website: "https://www.hofburg-wien.at/en/",
         note: "Combo με Time Travel διαθέσιμο"
     },
-    
+   
     // 11) House of Music
     {
         name: "House of Music (Haus der Musik)",
@@ -933,7 +952,7 @@ const activities = [
         website: "https://www.hausdermusik.com/en",
         familyTicket: "2 adults + up to 3 children = 35€"
     },
-    
+   
     // 12) Museum der Illusionen
     {
         name: "Museum der Illusionen (Μουσείο Ψευδαισθήσεων)",
@@ -944,7 +963,7 @@ const activities = [
         restaurant: "<a href='https://maps.google.com/?q=Illusions+Cafe+Vienna' target='_blank'>Illusions Cafe</a>",
         website: "https://www.museumderillusionen.at/wien/"
     },
-    
+   
     // 13) Vienna State Opera Tour
     {
         name: "Vienna State Opera - Guided Tour",
@@ -955,7 +974,7 @@ const activities = [
         restaurant: "<a href='https://maps.google.com/?q=Cafe+Sacher+Vienna' target='_blank'>Café Sacher</a> - για Sachertorte",
         website: "https://www.wiener-staatsoper.at/en/"
     },
-    
+   
     // 14) Belvedere Palace
     {
         name: "Belvedere Palace (Upper/Lower)",
@@ -967,7 +986,7 @@ const activities = [
         website: "https://www.belvedere.at/en",
         note: "Δωρεάν για κάτω των 19 (μόνιμη συλλογή)"
     },
-    
+   
     // 15) Donauturm (Danube Tower)
     {
         name: "Donauturm (Danube Tower)",
@@ -978,7 +997,7 @@ const activities = [
         restaurant: "<a href='https://maps.google.com/?q=Donauturm+Restaurant+Vienna' target='_blank'>Donauturm Restaurant</a> - στροφείο",
         website: "https://www.donauturm.at/en/"
     },
-    
+   
     // 16) Mozarthaus Vienna
     {
         name: "Mozarthaus Vienna",
@@ -990,7 +1009,7 @@ const activities = [
         website: "https://www.mozarthausvienna.at/en/",
         familyTicket: "2 adults + up to 3 children = 29€"
     },
-    
+   
     // 17) St. Stephen's Cathedral Crypt
     {
         name: "St. Stephen's Cathedral Crypt",
@@ -1001,7 +1020,7 @@ const activities = [
         restaurant: "<a href='https://maps.google.com/?q=Do+Co+Stephansplatz+Vienna' target='_blank'>Do & Co</a> - με θέα",
         website: "https://www.stephanskirche.at/"
     },
-    
+   
     // 18) Spanish Riding School
     {
          name: "Spanish Riding School",
@@ -1358,8 +1377,11 @@ function searchHotels() {
   document.body.appendChild(img);
 }
 
-function goToStep4(){
+async function goToStep4() {
     activateStep('step-activities');
+    
+    autoUpdateFamilyMembersIfNeeded();
+    
     const step4Section = document.getElementById("step-activities");
     const activityContainer = document.getElementById("activities-container");
     const overallTotalDiv = document.getElementById("overall-total");
@@ -1367,7 +1389,8 @@ function goToStep4(){
 
     let currentActivities = null;
     let activityTitle = "";
-   
+    
+    // 1. ΠΑΛΙΕΣ ΠΟΛΕΙΣ (built-in) - ΟΙ ΙΔΙΕΣ
     if(selectedDestinationName.includes("Βιέννη")){
         currentActivities = activities;
         activityTitle = "Οικογενειακές Δραστηριότητες στη Βιέννη";
@@ -1383,32 +1406,62 @@ function goToStep4(){
     } else if (selectedDestinationName.includes("Μαδρίτη")){
         currentActivities = activitiesMadrid;
         activityTitle = "Οικογενειακές Δραστηριότητες στη Μαδρίτη";
-   
     }
-   
-    if(currentActivities){
-        // Επανάληψη των υπαρχόντων activity cards
+    
+    // 2. ΝΕΟ ΣΥΣΤΗΜΑ: Έλεγχος για ΕΞΩΤΕΡΙΚΕΣ ΠΟΛΕΙΣ
+    if (!currentActivities && window.TravelPlannerExtensions) {
+        console.log(`🔍 Έλεγχος για εξωτερική πόλη: ${selectedDestinationName}`);
+        
+        try {
+            const extraCityData = await TravelPlannerExtensions.checkAndLoadExtraCity(selectedDestinationName);
+            
+            if (extraCityData && extraCityData.activities && extraCityData.activities.length > 0) {
+                currentActivities = extraCityData.activities;
+                activityTitle = `Οικογενειακές Δραστηριότητες στην ${selectedDestinationName}`;
+                console.log(`✅ Βρέθηκαν ${currentActivities.length} δραστηριότητες από εξωτερικό αρχείο`);
+            }
+        } catch (error) {
+            console.error("❌ Σφάλμα φόρτωσης εξωτερικής πόλης:", error);
+        }
+    }
+    
+    // 3. ΕΑΝ ΒΡΕΘΟΥΝ ΔΡΑΣΤΗΡΙΟΤΗΤΕΣ
+    if(currentActivities && currentActivities.length > 0){
+        // Επανάληψη των activity cards
         createActivityCards(currentActivities);
-       
+        
         step4Section.querySelector('h1').innerText = activityTitle;
         activityContainer.style.display = 'grid';
         overallTotalDiv.style.display = 'block';
         step5BtnContainer.style.display = 'block';
-       
+        
         // Υπολογισμός με τα νέα δεδομένα
         calculateAllCosts(currentActivities);
-       
+        
     } else {
+        // 4. ΕΑΝ ΔΕΝ ΒΡΕΘΟΥΝ ΔΡΑΣΤΗΡΙΟΤΗΤΕΣ
         step4Section.querySelector('h1').innerText = `Βήμα 4: Προορισμός: ${selectedDestinationName || 'Χωρίς Επιλογή'}`;
         activityContainer.style.display = 'block';
         overallTotalDiv.style.display = 'none';
         step5BtnContainer.style.display = 'none';
-        activityContainer.innerHTML = '<div style="text-align:center; font-size:2em; color:red; padding:50px; border:2px dashed red; border-radius:15px; background: #fff;">ΥΠΟ ΚΑΤΑΣΚΕΥΗ</div>';
+        activityContainer.innerHTML = `
+            <div style="text-align:center; font-size:1.5em; color:#ff6b6b; padding:40px; border:2px dashed #ff6b6b; border-radius:15px; background: #fff; margin:20px;">
+                <h3>🏗️ ΥΠΟ ΚΑΤΑΣΚΕΥΗ</h3>
+                <p>Οι δραστηριότητες για την πόλη <strong>${selectedDestinationName}</strong> προστίθενται σύντομα!</p>
+                <p>💡 Μπορείτε να:</p>
+                <ul style="text-align:left; display:inline-block; margin:15px 0;">
+                    <li>Επιστρέψετε στο Βήμα 1 και επιλέξετε άλλη πόλη</li>
+                    <li>Ή να περιμένετε για την επόμενη ενημέρωση</li>
+                </ul>
+                <button onclick="activateStep('step-destination')" style="padding:12px 24px; background:#3eb489; color:white; border:none; border-radius:8px; cursor:pointer; font-size:16px; margin-top:15px;">
+                    ↩️ Επιστροφή στο Βήμα 1
+                </button>
+            </div>
+        `;
     }
-   
+    
     saveToLocalStorage();
 }
-
 function goToStep5(){
     // Προφόρτωση Leaflet για γρηγορότερο χάρτη
     preloadLeaflet();
@@ -1685,6 +1738,7 @@ function createActivityCards(activityList) {
 
 // ==================== ΤΡΟΠΟΠΟΙΗΜΕΝΗ ΣΥΝΑΡΤΗΣΗ calculateAllCosts ====================
 function calculateAllCosts(activityList = null) {
+autoUpdateFamilyMembersIfNeeded();
         if (!activityList) {
         activityList = selectedDestinationName.includes("Βιέννη") ? activities :
                       selectedDestinationName.includes("Βερολίνο") ? activitiesBerlin :
@@ -2770,7 +2824,7 @@ const activitiesMadrid = [
         restaurant: "<a href='https://maps.google.com/?q=Restaurante+con+vistas+Templo+de+Debod' target='_blank'>Εστιατόριο με θέα στον ναό</a>",
         freeActivity: true
     },
-    
+   
     // ============== ΜΟΥΣΕΙΑ ==============
     {
         name: "MUNCYT (Μουσείο Επιστήμης & Τεχνολογίας)",
@@ -2822,7 +2876,7 @@ const activitiesMadrid = [
         restaurant: "<a href='https://maps.google.com/?q=Cafe+Museo+Cera+Madrid' target='_blank'>Café Museo de Cera</a>",
         website: "https://museoceramadrid.com/"
     },
-    
+   
     // ============== ΖΩΟΛΟΓΙΚΟΙ ΚΗΠΟΙ & ΕΝΥΔΡΕΙΑ ==============
     {
         name: "Zoo Aquarium de Madrid",
@@ -2856,7 +2910,7 @@ const activitiesMadrid = [
         restaurant: "<a href='https://maps.google.com/?q=X-Madrid+food+court' target='_blank'>Food Court X-Madrid</a>",
         website: "https://atlantisaquarium-madrid.es/"
     },
-    
+   
     // ============== ΘΕΜΑΤΙΚΑ ΠΑΡΚΑ & ΔΡΑΣΤΗΡΙΟΤΗΤΕΣ ==============
     {
         name: "Parque de Atracciones (Λούνα Παρκ)",
@@ -2891,7 +2945,7 @@ const activitiesMadrid = [
         website: "https://www.safarimadrid.com/",
         note: "⚠️ ΥΠΟΧΡΕΩΤΙΚΑ online αγορά εκ των προτέρων"
     },
-    
+   
     // ============== ΑΛΛΕΣ ΔΡΑΣΤΗΡΙΟΤΗΤΕΣ ==============
     {
         name: "Santiago Bernabéu Tour (Tour Γηπέδου Ρεάλ Μαδρίτης)",
@@ -2964,7 +3018,7 @@ const activitiesMadrid = [
 
 function calculateSmartCombos() {
     let currentActivities = null;
-    
+   
     if (selectedDestinationName.includes("Βιέννη")) {
         currentActivities = activities;
     } else if (selectedDestinationName.includes("Βερολίνο")) {
@@ -2979,37 +3033,37 @@ function calculateSmartCombos() {
         alert("⚠️ Ο έξυπνος υπολογισμός είναι διαθέσιμος μόνο για υποστηριζόμενες πόλεις.");
         return;
     }
-    
+   
     // Ενημέρωση των επιλεγμένων δραστηριοτήτων πρώτα
     updateSelectedActivities(currentActivities);
-    
+   
     // Βρίσκουμε τις επιλεγμένες δραστηριότητες
     const selectedActivities = currentActivities.filter(act => act.selected);
-    
+   
     if (selectedActivities.length === 0) {
         alert("⚠️ Δεν έχετε επιλέξει δραστηριότητες! Κάντε κλικ στις κάρτες για να τις επιλέξετε.");
         return;
     }
-    
+   
     // Ανάλυση εισιτηρίων ανά ηλικιακή κατηγορία
     const memberAgeGroups = categorizeFamilyMembers();
-    
+   
     // Υπολογισμός συνολικού κόστους χωρίς combos
     const regularCost = calculateRegularCost(selectedActivities, memberAgeGroups);
-    
+   
     // Αναζήτηση πιθανών combos
     const availableCombos = findAvailableCombos(currentActivities, selectedActivities);
-    
+   
     // Υπολογισμός κόστους με combos
     const comboResults = calculateComboCosts(selectedActivities, availableCombos, memberAgeGroups, regularCost);
-    
+   
     // Εμφάνιση αποτελεσμάτων
     displayComboResults(comboResults, regularCost);
 }
 
 function updateSelectedActivities(activityList) {
     console.log("🔍 Ενημέρωση επιλεγμένων δραστηριοτήτων...");
-    
+   
     activityList.forEach((act, index) => {
         const cardElement = document.getElementById(`activity-${index}`);
         if (cardElement) {
@@ -3020,7 +3074,7 @@ function updateSelectedActivities(activityList) {
             console.log(`   ⚠️ Δεν βρέθηκε card για: ${act.name}`);
         }
     });
-    
+   
     // Έλεγχος
     const selectedCount = activityList.filter(act => act.selected).length;
     console.log(`📊 Σύνολο επιλεγμένων: ${selectedCount}`);
@@ -3028,7 +3082,7 @@ function updateSelectedActivities(activityList) {
 function categorizeFamilyMembers() {
     console.log("👨‍👩‍👧‍👦 Κατηγοριοποίηση οικογένειας...");
     console.log("Μέλη οικογένειας:", familyMembers);
-    
+   
     const categories = {
         "0-2": 0,
         "3-5": 0,
@@ -3036,10 +3090,10 @@ function categorizeFamilyMembers() {
         "15-19": 0,
         "18+": 0
     };
-    
+   
     familyMembers.forEach(member => {
         console.log(`   ${member.name} (${member.age} ετών):`);
-        
+       
         if (member.age <= 2) {
             categories["0-2"]++;
             console.log(`     → Κατηγορία: 0-2`);
@@ -3057,7 +3111,7 @@ function categorizeFamilyMembers() {
             console.log(`     → Κατηγορία: 18+`);
         }
     });
-    
+   
     console.log("📊 Τελικές κατηγορίες:", categories);
     return categories;
 }
@@ -3065,53 +3119,53 @@ function calculateRegularCost(selectedActivities, ageGroups) {
     console.log("🧮 Υπολογισμός κανονικού κόστους...");
     console.log("Ηλικιακές ομάδες:", ageGroups);
     console.log("Επιλεγμένες δραστηριότητες:", selectedActivities.length);
-    
+   
     let totalCost = 0;
     let debugInfo = [];
-    
+   
     selectedActivities.forEach((activity, idx) => {
         let activityCost = 0;
-        
+       
         Object.keys(ageGroups).forEach(ageCategory => {
             const count = ageGroups[ageCategory];
             if (count > 0 && activity.prices && activity.prices[ageCategory]) {
                 const price = parseFloat(activity.prices[ageCategory]) || 0;
                 const costForThisAge = price * count;
                 activityCost += costForThisAge;
-                
+               
                 if (costForThisAge > 0) {
                     debugInfo.push(`${activity.name} - ${ageCategory}: ${price}€ × ${count} = ${costForThisAge}€`);
                 }
             }
         });
-        
+       
         totalCost += activityCost;
         console.log(`   ${activity.name}: ${activityCost}€`);
     });
-    
+   
     console.log("💰 Σύνολο κόστος:", totalCost);
     debugInfo.forEach(info => console.log("   " + info));
-    
+   
     return totalCost;
 }
 function findAvailableCombos(allActivities, selectedActivities) {
     console.log("🔍 Αναζήτηση combos...");
     console.log("Επιλεγμένες δραστηριότητες:", selectedActivities.map(a => a.name));
-    
+   
     const combos = [];
-    
+   
     // Ειδικά combos για κάθε πόλη
     if (selectedDestinationName.includes("Βιέννη")) {
         console.log("🏙️ Αναζήτηση combos για Βιέννη");
-        
+       
         // Sisi Pass combo - Απλοποιημένη έκδοση
-        const hasSchonbrunn = selectedActivities.some(act => 
+        const hasSchonbrunn = selectedActivities.some(act =>
             act.name.includes("Schönbrunn") || act.name.includes("Palace Ticket")
         );
-        const hasSisiMuseum = selectedActivities.some(act => 
+        const hasSisiMuseum = selectedActivities.some(act =>
             act.name.includes("Sisi") || act.name.includes("Sisi Museum")
         );
-        
+       
         if (hasSchonbrunn || hasSisiMuseum) {
             console.log("✅ Βρέθηκε Sisi Pass combo");
             combos.push({
@@ -3124,15 +3178,15 @@ function findAvailableCombos(allActivities, selectedActivities) {
                 note: "Εκπτωτικό combo για 3 αξιοθέατα - εξοικονόμηση 43€"
             });
         }
-        
+       
         // Classic Pass Plus combo
-        const hasClassicPass = selectedActivities.some(act => 
+        const hasClassicPass = selectedActivities.some(act =>
             act.name.includes("Classic Pass")
         );
-        const hasZoo = selectedActivities.some(act => 
+        const hasZoo = selectedActivities.some(act =>
             act.name.includes("Zoo Vienna") || act.name.includes("Zoo")
         );
-        
+       
         if (hasClassicPass || hasZoo) {
             console.log("✅ Βρέθηκε Classic Pass Plus combo");
             combos.push({
@@ -3146,16 +3200,16 @@ function findAvailableCombos(allActivities, selectedActivities) {
             });
         }
     }
-    
+   
     // Για Βερολίνο: Zoo + Aquarium combo
     if (selectedDestinationName.includes("Βερολίνο")) {
-        const hasZoo = selectedActivities.some(act => 
+        const hasZoo = selectedActivities.some(act =>
             act.name.includes("Zoologischer Garten")
         );
-        const hasAquarium = selectedActivities.some(act => 
+        const hasAquarium = selectedActivities.some(act =>
             act.name.includes("Aquarium Berlin")
         );
-        
+       
         if (hasZoo || hasAquarium) {
             combos.push({
                 name: "🐯 Zoo + Aquarium Berlin Combo",
@@ -3168,7 +3222,7 @@ function findAvailableCombos(allActivities, selectedActivities) {
             });
         }
     }
-    
+   
     console.log("📊 Σύνολο combos που βρέθηκαν:", combos.length);
     return combos;
 }
@@ -3179,35 +3233,35 @@ function calculateComboCosts(selectedActivities, availableCombos, ageGroups, reg
         bestSaving: 0,
         allCombos: []
     };
-    
+   
     availableCombos.forEach(combo => {
         // Υπολογισμός κανονικού κόστους για τις δραστηριότητες του combo
         let comboRegularCost = 0;
-        
+       
         combo.activities.forEach(activityName => {
             const activity = selectedActivities.find(act => act.name.includes(activityName));
             if (activity) {
                 Object.keys(ageGroups).forEach(ageCategory => {
                     const count = ageGroups[ageCategory];
                     if (count > 0 && activity.prices[ageCategory]) {
-                        const price = typeof activity.prices[ageCategory] === 'number' ? 
+                        const price = typeof activity.prices[ageCategory] === 'number' ?
                             activity.prices[ageCategory] : 0;
                         comboRegularCost += price * count;
                     }
                 });
             }
         });
-        
+       
         // Υπολογισμός εξοικονόμησης
         const saving = comboRegularCost - combo.comboPrice;
-        
+       
         // Ενημέρωση του combo object
         combo.regularPrice = comboRegularCost;
         combo.saving = saving > 0 ? saving : 0;
         combo.totalWithCombo = regularCost - saving;
-        
+       
         results.allCombos.push(combo);
-        
+       
         // Ενημέρωση του καλύτερου combo
         if (saving > results.bestSaving) {
             results.bestSaving = saving;
@@ -3215,7 +3269,7 @@ function calculateComboCosts(selectedActivities, availableCombos, ageGroups, reg
             results.bestTotal = regularCost - saving;
         }
     });
-    
+   
     return results;
 }
 
@@ -3236,7 +3290,7 @@ function displayComboResults(results, regularCost) {
         align-items: center;
         font-family: 'Comic Neue', Arial, sans-serif;
     `;
-    
+   
     const modalContent = document.createElement('div');
     modalContent.style.cssText = `
         background: white;
@@ -3247,7 +3301,7 @@ function displayComboResults(results, regularCost) {
         overflow-y: auto;
         box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     `;
-    
+   
     let contentHTML = `
         <div style="text-align: center;">
             <h2 style="color: #9c27b0; margin-top: 0;">💰 Έξυπνος Υπολογισμός Combo</h2>
@@ -3255,7 +3309,7 @@ function displayComboResults(results, regularCost) {
                 <h3 style="color: #7b1fa2;">Συνολικό Κόστος Χωρίς Combo: <strong>${regularCost.toFixed(2)} €</strong></h3>
             </div>
     `;
-    
+   
     if (results.allCombos.length > 0) {
         if (results.bestSaving > 0) {
             contentHTML += `
@@ -3281,13 +3335,13 @@ function displayComboResults(results, regularCost) {
                 </div>
             `;
         }
-        
+       
         contentHTML += `<h3 style="color: #3f51b5;">Όλα τα Διαθέσιμα Combos:</h3>`;
-        
+       
         results.allCombos.forEach((combo, index) => {
             const borderColor = combo.saving > 0 ? '#4caf50' : '#ff9800';
             const bgColor = combo.saving > 0 ? '#f1f8e9' : '#fff3e0';
-            
+           
             contentHTML += `
                 <div style="background: ${bgColor}; padding: 15px; border-radius: 10px; border-left: 5px solid ${borderColor}; margin-bottom: 15px;">
                     <h4 style="margin-top: 0; color: #3f51b5;">${combo.name}</h4>
@@ -3316,38 +3370,38 @@ function displayComboResults(results, regularCost) {
             </div>
         `;
     }
-    
+   
     // Σύνοψη
     contentHTML += `
         <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #ccc;">
             <h4 style="color: #9c27b0;">📊 Σύνοψη:</h4>
             <ul style="text-align: left; padding-left: 20px;">
                 <li>💰 <strong>Κανονικό κόστος:</strong> ${regularCost.toFixed(2)} €</li>
-                ${results.bestSaving > 0 ? 
+                ${results.bestSaving > 0 ?
                     `<li>🏆 <strong>Με καλύτερο combo:</strong> ${results.bestTotal.toFixed(2)} €</li>
-                     <li>✅ <strong>Συνολική εξοικονόμηση:</strong> ${results.bestSaving.toFixed(2)} €</li>` : 
+                     <li>✅ <strong>Συνολική εξοικονόμηση:</strong> ${results.bestSaving.toFixed(2)} €</li>` :
                     `<li>ℹ️ <strong>Δεν βρέθηκε εξοικονόμηση</strong> με τα τρέχοντα combos</li>`
                 }
                 <li>🎯 <strong>Βρέθηκαν:</strong> ${results.allCombos.length} combos</li>
             </ul>
         </div>
-        
+       
         <div style="margin-top: 25px; display: flex; justify-content: center; gap: 15px;">
-            <button onclick="closeComboModal()" 
+            <button onclick="closeComboModal()"
         style="padding: 12px 25px; background: #3eb489; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px;">
     Κλείσιμο
 </button>
             ${results.bestSaving > 0 ? `
-            <button onclick="applyBestCombo()" 
+            <button onclick="applyBestCombo()"
                     style="padding: 12px 25px; background: #9c27b0; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold;">
                 ✅ Εφαρμογή Καλύτερου Combo
             </button>` : ''}
         </div>
     `;
-    
+   
     modalContent.innerHTML = contentHTML;
     modal.appendChild(modalContent);
-    
+   
     // Προσθήκη κουμπιού κλεισίματος
     const closeBtn = document.createElement('button');
     closeBtn.innerHTML = '×';
@@ -3366,14 +3420,14 @@ function displayComboResults(results, regularCost) {
         z-index: 10001;
     `;
     closeBtn.onclick = () => modal.remove();
-    
+   
     document.body.appendChild(modal);
     document.body.appendChild(closeBtn);
 }
 
 function applyBestCombo() {
     alert("ℹ️ Η λειτουργία αυτόματης εφαρμογής του combo βρίσκεται υπό ανάπτυξη.\n\n💡 Σας συνιστούμε να αγοράσετε το combo online για την καλύτερη τιμή!");
-    
+   
     // Κλείσιμο του modal
     const modal = document.querySelector('div[style*="position: fixed"]');
     const closeBtn = document.querySelector('button[style*="position: absolute"]');
@@ -3384,24 +3438,24 @@ function applyBestCombo() {
 
 function closeComboModal() {
     console.log("🔒 Κλείσιμο modal combo...");
-    
+   
     // Βρες το modal
     const modal = document.querySelector('div[style*="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8)"]');
-    
+   
     // Βρες το κουμπί κλεισίματος
     const closeBtn = document.querySelector('button[style*="position: absolute; top: 20px; right: 20px; background: #f44336"]');
-    
+   
     // Αφαίρεσέ τα
     if (modal) {
         console.log("✅ Βρέθηκε modal - αφαίρεση...");
         modal.remove();
     }
-    
+   
     if (closeBtn) {
         console.log("✅ Βρέθηκε κουμπί κλεισίματος - αφαίρεση...");
         closeBtn.remove();
     }
-    
+   
     // Εναλλακτικός τρόπος
     const allModals = document.querySelectorAll('div');
     allModals.forEach(div => {
@@ -3409,21 +3463,82 @@ function closeComboModal() {
             div.remove();
         }
     });
-    
+   
     // Εναλλακτικός τρόπος 2
     const comboModal = document.getElementById('combo-modal-main');
     if (comboModal) comboModal.remove();
-    
+   
     console.log("✅ Modal κλείστηκε!");
 }
 
 // Επίσης, διορθώνουμε και τη συνάρτηση applyBestCombo
 function applyBestCombo() {
     alert("ℹ️ Η λειτουργία αυτόματης εφαρμογής του combo βρίσκεται υπό ανάπτυξη.\n\n💡 Σας συνιστούμε να αγοράσετε το combo online για την καλύτερη τιμή!");
-    
+   
     // Χρησιμοποιούμε την ίδια συνάρτηση κλεισίματος
     closeComboModal();
 }
+// ==================== ΑΥΤΟΜΑΤΗ ΕΝΗΜΕΡΩΣΗ ΟΙΚΟΓΕΝΕΙΑΣ ====================
+function autoUpdateFamilyMembersIfNeeded() {
+    // Αν δεν υπάρχουν μέλη ή είναι κενά, κάνε ενημέρωση
+    if (familyMembers.length === 0) {
+        console.log("🔄 Αυτόματη ενημέρωση οικογένειας...");
+        updateFamilyMembers();
+        
+        // Αν και πάλι δεν υπάρχουν, βάλε προεπιλεγμένα
+        if (familyMembers.length === 0) {
+            familyMembers = [
+                { name: "1ος Ενήλικας", age: 40 },
+                { name: "2ος Ενήλικας", age: 38 }
+            ];
+            console.log("⚠️ Χρησιμοποιώ προεπιλεγμένα μέλη");
+        }
+    }
+}
+
+// ==================== ΠΡΟΣΩΡΙΝΟΣ ΚΩΔΙΚΑΣ ΓΙΑ ΝΕΕΣ ΠΟΛΕΙΣ ====================
+const EXTRA_CITIES_CONFIG = {
+  "Παρίσι": {
+    file: "data/paris.json",
+    enabled: true,
+    emoji: "🗼"
+  },
+  "Ρώμη": {
+    file: "data/rome.json", 
+    enabled: true,
+    emoji: "🍕"
+  }
+};
+
+window.TravelPlannerExtensions = {
+  checkAndLoadExtraCity: async function(cityName) {
+    console.log(`🔍 Έλεγχος για εξωτερική πόλη: ${cityName}`);
+    
+    const cityConfig = EXTRA_CITIES_CONFIG[cityName];
+    if (!cityConfig || !cityConfig.enabled) {
+      console.log(`❌ Η πόλη ${cityName} δεν είναι διαθέσιμη`);
+      return null;
+    }
+    
+    try {
+      console.log(`📥 Φόρτωση από: ${cityConfig.file}`);
+      const response = await fetch(cityConfig.file);
+      
+      if (!response.ok) {
+        console.log(`❌ Δεν βρέθηκε αρχείο: ${cityConfig.file}`);
+        return null;
+      }
+      
+      const data = await response.json();
+      console.log(`✅ Φορτώθηκε: ${cityName} (${data.activities?.length || 0} δραστηριότητες)`);
+      return data;
+      
+    } catch (error) {
+      console.error(`❌ Σφάλμα:`, error);
+      return null;
+    }
+  }
+};
 </script>
 </body>
 </html>
