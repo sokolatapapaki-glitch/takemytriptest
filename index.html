@@ -738,18 +738,7 @@ function updateFamilyMembers() {
         
         const name = nameInput.value;
         let age = parseInt(ageInput.value);
-        
-        // Αν δεν έχει ηλικία, βάλε προεπιλεγμένη βάσει ονόματος
-        if (isNaN(age) || age < 0) {
-            if (name.includes("Ενήλικας")) age = 40;
-            else if (name.includes("Παιδί")) age = 10;
-            else if (name.includes("Μωρό")) age = 2;
-            else age = 30;
-            
-            // Ενημέρωση του input
-            ageInput.value = age;
-        }
-        
+                      
         if (name && age >= 0) {
             familyMembers.push({ name, age });
         }
