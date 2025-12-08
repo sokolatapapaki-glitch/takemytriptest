@@ -1926,13 +1926,18 @@ function selectQuickCity() {
 }
 
 function getSelectedActivities() {
-    // 1. Πρώτα τσεκάρουμε αν υπάρχουν δραστηριότητες από εξωτερικό JSON
-    if (window.loadedExtraCityActivities && window.loadedExtraCityActivities.length > 0) {
-        // Επιστρέφουμε ΜΟΝΟ τις επιλεγμένες από τις εξωτερικές
+    console.log("🔍 Αναζήτηση επιλεγμένων για:", selectedDestinationName);
+    
+    // 1. Πρώτα τσεκάρουμε αν υπάρχουν δραστηριότητες από εξωτερικό JSON (ΜΟΝΟ για Παρίσι)
+    if (selectedDestinationName.includes("Παρίσι") && window.loadedExtraCityActivities && window.loadedExtraCityActivities.length > 0) {
+        console.log("🔍 Έλεγχος για Παρίσι...");
         const selected = window.loadedExtraCityActivities.filter(act => act.selected === true);
         if (selected.length > 0) {
-            console.log("✅ Βρέθηκαν επιλεγμένες από εξωτερικό JSON:", selected.length);
+            console.log("✅ Βρέθηκαν επιλεγμένες για Παρίσι:", selected.length);
             return selected;
+        } else {
+            console.log("⚠️ Δεν βρέθηκαν επιλεγμένες δραστηριότητες για Παρίσι");
+            return [];
         }
     }
     
