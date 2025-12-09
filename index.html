@@ -2210,6 +2210,8 @@ function createSmartMapWithActivities(activities) {
    
     // Δημιουργία χάρτη
     const map = L.map('smart-map').setView(mapCenter, mapZoom);
+    // ΑΠΟΘΗΚΕΥΣΗ ΧΑΡΤΗ ΓΙΑ ΠΡΟΣΒΑΣΗ
+window.currentMap = map;
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '© OpenStreetMap contributors'
@@ -2220,6 +2222,8 @@ function createSmartMapWithActivities(activities) {
    
     // Προσθήκη κουμπιού κλεισίματος
     addMapCloseButton(mapContainer, map);
+        // ΦΟΡΤΩΣΗ CUSTOM POINTS
+    loadCustomPointsOnMap();
 }
 
 // ΝΕΑ ΣΥΝΑΡΤΗΣΗ: Προσθήκη πινεζών στον χάρτη
