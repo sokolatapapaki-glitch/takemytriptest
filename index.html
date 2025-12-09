@@ -657,6 +657,20 @@ body {
             🗺️ Φόρτωση Έξυπνου Χάρτη
         </button>
     </div>
+    <!-- ΚΟΥΜΠΙΑ ΔΙΑΧΕΙΡΙΣΗΣ ΧΑΡΤΗ -->
+<div style="text-align: center; margin: 15px 0;">
+    <button onclick="startAddingCustomPoint()" style="padding: 12px 24px; background: #9c27b0; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; margin: 5px;">
+        🟣 Προσθήκη Σημείου στον Χάρτη
+    </button>
+    <button onclick="viewCustomPoints()" style="padding: 12px 24px; background: #3eb489; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; margin: 5px;">
+        👁️ Προβολή Προσωπικών Σημείων
+    </button>
+</div>
+   <!-- CONTAINER ΓΙΑ ΤΑ CUSTOM POINTS -->
+<div id="custom-points-list" style="max-width: 800px; margin: 20px auto; display: none;">
+    <h3>🟣 Προσωπικά Σημεία</h3>
+    <div id="custom-points-container"></div>
+</div> 
 </div>
 </div>
 
