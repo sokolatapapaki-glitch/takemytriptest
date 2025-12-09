@@ -659,9 +659,9 @@ body {
     </div>
     <!-- ΚΟΥΜΠΙΑ ΔΙΑΧΕΙΡΙΣΗΣ ΧΑΡΤΗ -->
 <div style="text-align: center; margin: 15px 0;">
-    <button onclick="startAddingCustomPoint()" style="padding: 12px 24px; background: #9c27b0; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; margin: 5px;">
-        🟣 Προσθήκη Σημείου στον Χάρτη
-    </button>
+    <button onclick="addCustomPointSmart()" style="padding: 12px 24px; background: #9c27b0; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; margin: 5px;">
+    🏆 Έξυπνη Προσθήκη Σημείου
+</button>
     <button onclick="viewCustomPoints()" style="padding: 12px 24px; background: #3eb489; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; margin: 5px;">
         👁️ Προβολή Προσωπικών Σημείων
     </button>
@@ -3897,6 +3897,182 @@ function loadCustomPointsOnMap() {
     customPoints.forEach(point => {
         addCustomPointToMap(point);
     });
+}
+    // ==================== ΕΞΥΠΝΗ ΠΡΟΣΘΗΚΗ ΣΗΜΕΙΩΝ ====================
+
+// 10. ΣΥΝΑΡΤΗΣΗ: ΕΞΥΠΝΗ ΠΡΟΣΘΗΚΗ (3 ΤΡΟΠΟΙ)
+function addCustomPointSmart() {
+    if (typeof L === 'undefined' || !window.currentMap) {
+        alert('⚠️ Πρέπει πρώτα να φορτώσετε τον χάρτη!');
+        initializeSmartMap();
+        setTimeout(() => {
+            alert('✅ Ο χάρτης φορτώθηκε! Προσπαθήστε ξανά.');
+        }, 1500);
+        return;
+    }
+    
+    // Εμφάνιση menu επιλογών
+    const choice = prompt(`🏆 ΠΩΣ ΘΕΛΕΤΕ ΝΑ ΠΡΟΣΘΕΣΕΤΕ ΤΟ ΣΗΜΕΙΟ;
+
+1️⃣ 🔍 ΑΝΑΖΗΤΗΣΗ ΟΝΟΜΑΤΟΣ (για διάσημα μέρη όπως "Βατικανό", "Πύργος του Άιφελ")
+2️⃣ 🗺️ ΚΛΙΚ ΣΤΟΝ ΧΑΡΤΗ (για προσεγγιστική τοποθεσία)
+3️⃣ 📫 ΠΛΗΚΤΡΟΛΟΓΗΣΗ ΔΙΕΥΘΥΝΣΗΣ (για ακριβή διεύθυνση)
+
+Επιλέξτε 1, 2 ή 3:`);
+    
+    if (choice === '1') {
+        searchPointByName();
+    } else if (choice === '2') {
+        startAddingCustomPoint(); // Η υπάρχουσα μέθοδος
+    } else if (choice === '3') {
+        searchPointByAddress();
+    } else {
+        alert('❌ Ακυρώθηκε');
+    }
+}
+
+// 11. ΣΥΝΑΡΤΗΣΗ: ΑΝΑΖΗΤΗΣΗ ΑΠΟ ΟΝΟΜΑ (ΓΙΑ ΔΙΑΣΗΜΑ ΜΕΡΗ)
+function searchPointByName() {
+    const query = prompt('🔍 Γράψτε το όνομα της τοποθεσίας:\n\nΠαραδείγματα:\n• Βατικανό\n• Πύργος του Άιφελ\n• Disneyland Paris\n• Κολωνάκι Αθήνα\n• Στάδιο Σπύρος Λούης');
+    
+    if (!query || query.trim() === '') {
+        alert('❌ Δεν εισάγατε όνομα');
+        return;
+    }
+    
+    // Εμφάνιση μηνύματος αναμονής
+    alert('🔍 Αναζήτηση τοποθεσίας... Παρακαλώ περιμένετε.');
+    
+    // Χρήση Nominatim API (OpenStreetMap - ΔΩΡΕΑΝ)
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`)
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.length > 0) {
+                // Εμφάνιση επιλογών αν βρέθηκαν πολλά
+                if (data.length > 1) {
+                    let optionsText = '📋 Βρέθηκαν πολλές τοποθεσίες:\n\n';
+                    data.slice(0, 5).forEach((item, index) => {
+                        optionsText += `${index + 1}. ${item.display_name}\n`;
+                    });
+                    optionsText += '\nΕπιλέξτε αριθμό (1-5) ή 0 για ακύρωση:';
+                    
+                    const choice = prompt(optionsText);
+                    const choiceNum = parseInt(choice);
+                    
+                    if (choiceNum >= 1 && choiceNum <= data.length) {
+                        const selected = data[choiceNum - 1];
+                        showCustomPointForm(selected.lat, selected.lon, `${selected.display_name}`);
+                    } else {
+                        alert('Ακυρώθηκε');
+                    }
+                } else {
+                    // Μόνο ένα αποτέλεσμα
+                    const firstResult = data[0];
+                    showCustomPointForm(firstResult.lat, firstResult.lon, `${firstResult.display_name}`);
+                }
+            } else {
+                alert('❌ Δεν βρέθηκε τοποθεσία με αυτό το όνομα.\n\n💡 Δοκιμάστε:\n• Πιο συγκεκριμένο όνομα\n• Ή χρησιμοποιήστε "Κλικ στον χάρτη"');
+                startAddingCustomPoint(); // Επιστροφή στην παλιά μέθοδο
+            }
+        })
+        .catch(error => {
+            console.error('Σφάλμα αναζήτησης:', error);
+            alert('⚠️ Προσωρινό σφάλμα αναζήτησης.\n\n💡 Παρακαλώ δοκιμάστε "Κλικ στον χάρτη" για τώρα.');
+            startAddingCustomPoint();
+        });
+}
+
+// 12. ΣΥΝΑΡΤΗΣΗ: ΑΝΑΖΗΤΗΣΗ ΑΠΟ ΔΙΕΥΘΥΝΣΗ
+function searchPointByAddress() {
+    const address = prompt('📫 Βάλτε πλήρη διεύθυνση:\n\nΠαραδείγματα:\n• Μοτσαρτστράσε 12, Βιέννη\n• Πλατεία Συντάγματος 2, Αθήνα\n• Champs-Élysées 50, Παρίσι');
+    
+    if (!address || address.trim() === '') {
+        alert('❌ Δεν εισάγατε διεύθυνση');
+        return;
+    }
+    
+    alert('📡 Αναζήτηση διεύθυνσης... Παρακαλώ περιμένετε.');
+    
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&addressdetails=1`)
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.length > 0) {
+                const result = data[0];
+                showCustomPointForm(result.lat, result.lon, `${result.display_name}`);
+            } else {
+                alert('❌ Δεν βρέθηκε η διεύθυνση.\n\n💡 Δοκιμάστε:\n• Πιο συγκεκριμένη διεύθυνση\n• Ή χρησιμοποιήστε "Κλικ στον χάρτη"');
+                startAddingCustomPoint();
+            }
+        })
+        .catch(error => {
+            console.error('Σφάλμα αναζήτησης διεύθυνσης:', error);
+            alert('⚠️ Προσωρινό σφάλμα.\n💡 Παρακαλώ δοκιμάστε "Κλικ στον χάρτη".');
+            startAddingCustomPoint();
+        });
+}
+
+// 13. ΣΥΝΑΡΤΗΣΗ: ΒΕΛΤΙΩΜΕΝΗ ΦΟΡΜΑ (ΜΕ ΠΡΟΥΠΟΛΟΓΙΣΜΕΝΟ ΟΝΟΜΑ)
+function showCustomPointForm(lat, lng, suggestedName = '') {
+    const formHTML = `
+        <div id="custom-point-modal" style="
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 10000;
+            max-width: 450px;
+            width: 90%;
+        ">
+            <h3 style="margin-top: 0; color: #9c27b0;">🏆 Προσθήκη Νέου Σημείου</h3>
+            
+            <div style="background: #f0f0f0; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9em;">
+                📍 Συντεταγμένες: ${parseFloat(lat).toFixed(6)}, ${parseFloat(lng).toFixed(6)}
+            </div>
+            
+            <label style="display: block; margin: 10px 0 5px 0;">🏷️ Όνομα:</label>
+            <input type="text" id="custom-point-name" 
+                   value="${suggestedName ? suggestedName.split(',')[0] : ''}"
+                   placeholder="π.χ. Το ξενοδοχείο μας" 
+                   style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 10px;">
+            
+            <label style="display: block; margin: 10px 0 5px 0;">📝 Τύπος:</label>
+            <select id="custom-point-type" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 15px;">
+                <option value="attraction">🏛️ Αξιοθέατο</option>
+                <option value="hotel" selected>🏨 Ξενοδοχείο</option>
+                <option value="restaurant">🍽️ Εστιατόριο</option>
+                <option value="cafe">☕ Καφέ</option>
+                <option value="shop">🛍️ Κατάστημα</option>
+                <option value="transport">🚇 Σταθμός Μεταφορών</option>
+                <option value="personal">🏠 Προσωπικό Σημείο</option>
+                <option value="other">📍 Άλλο</option>
+            </select>
+            
+            <label style="display: block; margin: 10px 0 5px 0;">📝 Σημείωση (προαιρετικό):</label>
+            <textarea id="custom-point-note" placeholder="π.χ. Το ξενοδοχείο όπου θα μείνουμε, Κλειστά Τρίτες..." 
+                     style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 15px; height: 80px;"></textarea>
+            
+            <div style="text-align: center;">
+                <button onclick="saveCustomPoint(${lat}, ${lng})" 
+                        style="padding: 12px 25px; background: #9c27b0; color: white; border: none; border-radius: 8px; cursor: pointer; margin: 5px; font-size: 16px;">
+                    💾 Αποθήκευση
+                </button>
+                <button onclick="closeCustomPointForm()" 
+                        style="padding: 12px 25px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer; margin: 5px; font-size: 16px;">
+                    ❌ Ακύρωση
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Καθαρίζουμε παλιό modal αν υπάρχει
+    const oldModal = document.getElementById('custom-point-modal');
+    if (oldModal) oldModal.remove();
+    
+    document.body.insertAdjacentHTML('beforeend', formHTML);
 }
 
 // ==================== 👆 ΜΕΧΡΙ ΕΔΩ 👆 ====================
