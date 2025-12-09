@@ -768,6 +768,12 @@ function updateFamilyMembers() {
 let selectedDestinationName = "";
 let selectedDaysStay = 0;
 let selectedBudget = 0;
+    // ΒΟΗΘΗΤΙΚΗ ΣΥΝΑΡΤΗΣΗ ΓΙΑ ΜΟΡΦΟΠΟΙΗΣΗ ΤΙΜΩΝ
+function formatPrice(price) {
+    if (price === undefined || price === null) return '-';
+    if (typeof price === 'number') return price + '€';
+    return price;
+}
 
 const destinations = [
   {name:"Βιέννη", dist:2, weather:"Πιο κρύο", themeparks:"Ναι", christmas:"Ναι", vacationType:["Πολιτισμός", "Πόλη"], costLevel:"Μέτριο", suitableFor:["Νεογέννητα", "Παιδικό", "ΑΜΕΑ", "Ηλικιωμένοι"], bestSeason:["Άνοιξη", "Φθινόπωρο"], desc:"Η αυτοκρατορική πόλη με τα παλάτια, τους κήπους και τα νόστιμα schnitzel."},
