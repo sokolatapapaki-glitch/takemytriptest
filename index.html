@@ -2135,12 +2135,49 @@ function preloadLeaflet() {
 
 function initializeSmartMap() {
     const selectedActivities = getSelectedActivities();
+    const mapContainer = document.getElementById('map-container');
+    mapContainer.innerHTML = '<div id="smart-map" style="height: 100%; width: 100%;"></div>';
    
-    if (selectedActivities.length === 0) {
-        alert('⚠️ Δεν έχετε επιλέξει δραστηριότητες! Πηγαίνετε πρώτα στο Βήμα 4 και κάντε κλικ στις κάρτες δραστηριοτήτων για να τις επιλέξετε (πρέπει να γίνουν κίτρινες με αστέρι ⭐).');
-        activateStep('step-activities');
-        return;
+    let mapCenter, mapZoom;
+   
+    // Προσδιορισμός κέντρου βάσει πόλης
+    if (selectedDestinationName.includes("Βερολίνο")) {
+        mapCenter = [52.5200, 13.4050];
+        mapZoom = 12;
+    } else if (selectedDestinationName.includes("Λισαβόνα")) {
+        mapCenter = [38.7223, -9.1393];
+        mapZoom = 13;
+    } else if (selectedDestinationName.includes("Βουδαπέστη")) {
+        mapCenter = [47.4979, 19.0402];
+        mapZoom = 13;
+    } else {
+        // Προεπιλογή για Βιέννη ή άλλες
+        mapCenter = [48.2082, 16.3738];
+        mapZoom = 13;
     }
+   
+    // Δημιουργία χάρτη
+    const map = L.map('smart-map').setView(mapCenter, mapZoom);
+    
+    // ΑΠΟΘΗΚΕΥΣΗ ΧΑΡΤΗ ΓΙΑ ΠΡΟΣΒΑΣΗ
+    window.currentMap = map;
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+   
+    // ΕΑΝ ΥΠΑΡΧΟΥΝ ΕΠΙΛΕΓΜΕΝΕΣ ΔΡΑΣΤΗΡΙΟΤΗΤΕΣ, Προσθήκη πινεζών
+    if (selectedActivities.length > 0) {
+        addActivityMarkers(map, selectedActivities);
+    }
+   
+    // Προσθήκη κουμπιού κλεισίματος
+    addMapCloseButton(mapContainer, map);
+    
+    // ΦΟΡΤΩΣΗ CUSTOM POINTS
+    loadCustomPointsOnMap();
+}
    
     const mapContainer = document.getElementById('map-container');
     mapContainer.innerHTML = '<div id="smart-map" style="height: 100%; width: 100%;"></div>';
