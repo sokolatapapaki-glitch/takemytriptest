@@ -1710,6 +1710,11 @@ function activateStep(targetId) {
 
 // ** 4. ΒΗΜΑ 4 - ΔΡΑΣΤΗΡΙΟΤΗΤΕΧ **
 function createActivityCards(activityList) {
+     if (selectedDestinationName.includes("Κωνσταντινούπολη") || 
+        selectedDestinationName.includes("Παρίσι") || 
+        selectedDestinationName.includes("Πράγα")) {
+        window.loadedExtraCityActivities = activityList;
+    }
   const containerActivities = document.getElementById('activities-container');
   containerActivities.innerHTML = "";
  
