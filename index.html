@@ -1753,14 +1753,27 @@ function createActivityCards(activityList) {
         ${act.ageWarning ? `<div style="background: #fff3cd; padding: 5px; border-radius: 6px; margin: 5px 0; font-size: 0.9em; color: #856404;">⚠️ ${act.ageWarning}</div>` : ''}
         ${act.priceNote ? `<div style="background: #d1ecf1; padding: 5px; border-radius: 6px; margin: 5px 0; font-size: 0.9em; color: #0c5460;">ℹ️ ${act.priceNote}</div>` : ''}
        <table class="activity-table">
-    <tr><th>0-2</th><th>3-5</th><th>6-14</th><th>15-19</th><th>18+</th></tr>
-    <tr>
-        <td>${formatPrice(act.prices["0-2"])}</td>
-        <td>${formatPrice(act.prices["3-5"])}</td>
-        <td>${formatPrice(act.prices["6-14"])}</td>
-        <td>${formatPrice(act.prices["15-19"])}</td>
-        <td>${formatPrice(act.prices["18+"])}</td>
-    </tr>
+    ${selectedDestinationName.includes("Κωνσταντινούπολη") || 
+      selectedDestinationName.includes("Παρίσι") || 
+      selectedDestinationName.includes("Πράγα") ?
+      // 👇 ΓΙΑ ΚΩΝΣΤΑΝΤΙΝΟΥΠΟΛΗ, ΠΑΡΙΣΙ, ΠΡΑΓΑ 👇
+      `<tr><th>0-6</th><th>7-12</th><th>13-17</th><th>18+</th></tr>
+       <tr>
+          <td>${formatPrice(act.prices["0-6"])}</td>
+          <td>${formatPrice(act.prices["7-12"])}</td>
+          <td>${formatPrice(act.prices["13-17"])}</td>
+          <td>${formatPrice(act.prices["18+"])}</td>
+       </tr>` :
+      // 👇 ΓΙΑ ΟΛΕΣ ΤΙΣ ΑΛΛΕΣ ΠΟΛΕΙΣ 👇
+      `<tr><th>0-2</th><th>3-5</th><th>6-14</th><th>15-19</th><th>18+</th></tr>
+       <tr>
+          <td>${formatPrice(act.prices["0-2"])}</td>
+          <td>${formatPrice(act.prices["3-5"])}</td>
+          <td>${formatPrice(act.prices["6-14"])}</td>
+          <td>${formatPrice(act.prices["15-19"])}</td>
+          <td>${formatPrice(act.prices["18+"])}</td>
+       </tr>`
+    }
 </table>
         <div class="total" id="total-${index}">Κόστος: 0 €</div>
       </div>
