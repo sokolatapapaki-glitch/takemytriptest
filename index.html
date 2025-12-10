@@ -3432,9 +3432,9 @@ function findAvailableCombos(allActivities, selectedActivities) {
             // Μετράμε πόσες από τις 5 κύριες δραστηριότητες του pass έχει επιλέξει
             const passActivities = ["Αγία Σοφία", "Τοπ Καπί", "Αρχαιολογικό Μουσείο", 
                                    "Μουσείο Σύγχρονης Τέχνης", "Βασιλική Κινστέρνα"];
-            const selectedPassActivities = selectedActivities.filter(act => 
-                passActivities.some(passAct => act.name && act.name.includes(passAct))
-            );
+            const selectedPassActivities = (selectedActivities || []).filter(act => 
+    passActivities.some(passAct => act.name && act.name.includes(passAct))
+);
             
             if (selectedPassActivities.length >= 3) {
                 console.log("✅ Βρέθηκε Museum Pass (3+ δραστηριότητες)");
