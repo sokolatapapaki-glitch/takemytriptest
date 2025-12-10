@@ -3156,11 +3156,19 @@ const activitiesMadrid = [
     }
 ];
 // ==================== ΕΞΥΠΝΟΣ ΥΠΟΛΟΓΙΣΜΟΣ COMBO ====================
-
 function calculateSmartCombos() {
     let currentActivities = null;
    
-    if (selectedDestinationName.includes("Βιέννη")) {
+    // 1. ΠΡΩΤΑ: Έλεγχος για πόλεις από JSON (Κωνσταντινούπολη, Παρίσι, Πράγα)
+    if ((selectedDestinationName.includes("Κωνσταντινούπολη") || 
+         selectedDestinationName.includes("Παρίσι") || 
+         selectedDestinationName.includes("Πράγα")) &&
+        window.loadedExtraCityActivities && window.loadedExtraCityActivities.length > 0) {
+        
+        console.log("🎯 Χρήση δραστηριοτήτων από JSON για:", selectedDestinationName);
+        currentActivities = window.loadedExtraCityActivities;
+   
+    } else if (selectedDestinationName.includes("Βιέννη")) {
         currentActivities = activities;
     } else if (selectedDestinationName.includes("Βερολίνο")) {
         currentActivities = activitiesBerlin;
