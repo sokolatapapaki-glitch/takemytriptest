@@ -3209,9 +3209,18 @@ function calculateSmartCombos() {
     // Εμφάνιση αποτελεσμάτων
     displayComboResults(comboResults, regularCost);
 }
-
 function updateSelectedActivities(activityList) {
-    console.log("🔍 Ενημέρωση επιλεγμένων δραστηριοτήτων...");
+    console.log("🔍 Ενημέρωση επιλεγμένων δραστηριοτήτων για:", selectedDestinationName);
+    
+    // Ειδική λογική για JSON πόλεις
+    if ((selectedDestinationName.includes("Κωνσταντινούπολη") || 
+         selectedDestinationName.includes("Παρίσι") || 
+         selectedDestinationName.includes("Πράγα")) &&
+        window.loadedExtraCityActivities) {
+        
+        console.log("🔄 Συγχρονισμός με window.loadedExtraCityActivities");
+        activityList = window.loadedExtraCityActivities;
+    }
    
     activityList.forEach((act, index) => {
         const cardElement = document.getElementById(`activity-${index}`);
@@ -3220,7 +3229,7 @@ function updateSelectedActivities(activityList) {
             act.selected = isSelected;
             console.log(`   ${act.name}: ${isSelected ? '✅ Επιλεγμένη' : '❌ Μη επιλεγμένη'}`);
         } else {
-            console.log(`   ⚠️ Δεν βρέθηκε card για: ${act.name}`);
+            console.log(`   ⚠️ Δεν βρέθηκε card για: ${act.name} (index: ${index})`);
         }
     });
    
@@ -3228,6 +3237,7 @@ function updateSelectedActivities(activityList) {
     const selectedCount = activityList.filter(act => act.selected).length;
     console.log(`📊 Σύνολο επιλεγμένων: ${selectedCount}`);
 }
+
 function categorizeFamilyMembers() {
     console.log("👨‍👩‍👧‍👦 Κατηγοριοποίηση οικογένειας...");
     console.log("Μέλη οικογένειας:", familyMembers);
